@@ -105,17 +105,24 @@ VALUES
 (' Stomatolog', 4000, 10);
 SELECT * FROM pensje;
 
--- nazwiska i adresy
-SELECT nazwisko, adres 
+-- nazwiska i adresy, użycie concat ze względu na powtarzające się nazwiska
+SELECT CONCAT(
+   nazwisko,
+   ' ',
+   imie) AS 'osoba',
+ adres 
 FROM pracownicy;
 
 -- dzień tygodnia i miesiąc
-SELECT CONCAT( DAYNAME(data), ', ', MONTHNAME(data) ) AS 'dzien tygodnia i miesiac'
+SELECT CONCAT(
+   DAYNAME(data),
+   ', ',
+   MONTHNAME(data) ) AS 'dzien tygodnia i miesiac'
 FROM godziny;
 
 ALTER TABLE pensje
- RENAME COLUMN kwota
- TO kwota_brutto;
+RENAME COLUMN kwota
+TO kwota_brutto;
  
 ALTER TABLE pensje
 ADD COLUMN kwota_netto DECIMAL(15,2)

@@ -105,12 +105,8 @@ VALUES
 (' Stomatolog', 4000, 10);
 SELECT * FROM pensje;
 
--- nazwiska i adresy, użycie concat ze względu na powtarzające się nazwiska
-SELECT CONCAT(
-   nazwisko,
-   ' ',
-   imie) AS 'osoba',
- adres 
+
+SELECT nazwisko, adres 
 FROM pracownicy;
 
 -- dzień tygodnia i miesiąc

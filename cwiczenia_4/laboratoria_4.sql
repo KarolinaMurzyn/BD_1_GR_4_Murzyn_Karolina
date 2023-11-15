@@ -157,7 +157,9 @@ SELECT
 FROM
 	pracownicy;
 
+
 -- b  id_prac płaca > 1000
+
 SELECT 
 	pracownicy.id_pracownika, pensja.kwota
 FROM
@@ -168,6 +170,7 @@ FROM
 	pensja ON pensja.id_pensji = wynagrodzenie.id_pensji
 WHERE
 	pensja.kwota > 1000;
+
 
 -- c id_prac bez premii, płaca > 2000
 
@@ -192,6 +195,7 @@ FROM pracownicy
 WHERE
 	imie LIKE "j%";
 
+
 -- e nazwisko zawiwra n i imie konczy na a
 
 SELECT * 
@@ -201,7 +205,8 @@ WHERE
 	nazwisko LIKE '%n%' 
 		AND
     imie LIKE '%a';
-    
+
+
 -- f imie i nazwisko pracownikow oraz liczba nadgodzin czas mies 160 godz
 
 SELECT
@@ -216,7 +221,8 @@ FROM
     godziny ON godziny.id_pracownika = pracownicy.id_pracownika
 GROUP BY 
 	pracownicy.id_pracownika;
-	
+
+
 -- g imie i nazwisko pracowników których pensja mieści się pomiędzy 1500 a 3000
 
 SELECT
@@ -264,8 +270,10 @@ FROM pracownicy
 		LEFT JOIN 
 	pensja ON pensja.id_pensji = wynagrodzenie.id_pensji
  ORDER BY pensja.kwota;
- 
+
+
 -- j według pensji malejąca
+
 SELECT * 
 FROM pracownicy
 		LEFT JOIN
@@ -273,16 +281,17 @@ FROM pracownicy
 		LEFT JOIN 
 	pensja ON pensja.id_pensji = wynagrodzenie.id_pensji
  ORDER BY pensja.kwota DESC;
- 
+
+
  -- k zlicz i pogrupuj pracowników według stanowiska
  
  SELECT
 	CONCAT('Zawod: ', stanowisko,
-										CASE
-											WHEN
-												COUNT(*) = 1 THEN CONCAT(' 		wykonuje ', COUNT(*),' osoba')
-                                            ELSE CONCAT(' 		wykonują ' , COUNT(*), ' osoby')
-                                            END) AS 'ilosc osob na stanowisku'
+					CASE
+					WHEN
+						COUNT(*) = 1 THEN CONCAT(' wykonuje ', COUNT(*),' osoba')
+	                                        ELSE CONCAT(' wykonują ' , COUNT(*), ' osoby')
+                                        END) AS 'ilosc osob na stanowisku'
 FROM
 	pensja
 GROUP BY 
@@ -303,6 +312,7 @@ GROUP BY
 
 
 -- m suma wszystkich wynagrodzeń
+
 SELECT
 	( SUM(pensja.kwota) + COALESCE(SUM(premia.kwota), 0) ) AS 'suma wynagrodzen'
 FROM 
@@ -326,7 +336,9 @@ FROM
 	premia ON premia.id_premii = wynagrodzenie.id_premii
 GROUP BY pensja.stanowisko;
 
+
 -- o wyznaqcz liczbę premii przyznanych dla pracowników dla danego stanowiska
+
 SELECT
 	pensja.stanowisko,
     COUNT(premia.id_premii) AS 'liczba premii'
@@ -339,7 +351,9 @@ FROM
 GROUP BY
 	pensja.stanowisko;
 
+
 -- p usuń wszystkich pracowników z pensją poniżej 1200zł
+
 CREATE TEMPORARY TABLE 
 	to_delete
 SELECT 

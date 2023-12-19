@@ -15,4 +15,18 @@ FROM HighestSalary;
 
 
 
+WITH Territory AS (
+    SELECT 
+        C.customerid,
+        C.territoryid,
+        S.name
+    FROM sales.customer AS C
+    JOIN sales.salesterritory AS S ON S.territoryid = C.territoryid
+)
+SELECT *
+FROM Territory;
+
+
+
+
 

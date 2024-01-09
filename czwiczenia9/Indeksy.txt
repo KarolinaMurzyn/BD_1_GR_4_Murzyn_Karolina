@@ -1,0 +1,76 @@
+Przed:
+
+"QUERY PLAN"
+"Hash Join  (cost=12.70..427.12 rows=1 width=44) (actual time=0.029..0.030 rows=0 loops=1)"
+"  Hash Cond: (c.customerid = soh.customerid)"
+"  ->  Seq Scan on customer c  (cost=0.00..413.75 rows=176 width=16) (actual time=0.017..0.017 rows=1 loops=1)"
+"        Filter: (territoryid = 5)"
+"        Rows Removed by Filter: 7"
+"  ->  Hash  (cost=11.20..11.20 rows=120 width=32) (actual time=0.004..0.005 rows=0 loops=1)"
+"        Buckets: 1024  Batches: 1  Memory Usage: 8kB"
+"        ->  Seq Scan on salesorderheader soh  (cost=0.00..11.20 rows=120 width=32) (actual time=0.004..0.004 rows=0 loops=1)"
+"Planning Time: 0.138 ms"
+"Execution Time: 0.056 ms"
+
+
+Po:
+
+"QUERY PLAN"
+"Hash Join  (cost=18.35..194.31 rows=1 width=44) (actual time=0.091..0.094 rows=0 loops=1)"
+"  Hash Cond: (c.customerid = soh.customerid)"
+"  ->  Bitmap Heap Scan on customer c  (cost=5.65..180.94 rows=176 width=16) (actual time=0.072..0.072 rows=1 loops=1)"
+"        Recheck Cond: (territoryid = 5)"
+"        Heap Blocks: exact=1"
+"        ->  Bitmap Index Scan on idx_territoryid  (cost=0.00..5.61 rows=176 width=0) (actual time=0.060..0.060 rows=176 loops=1)"
+"              Index Cond: (territoryid = 5)"
+"  ->  Hash  (cost=11.20..11.20 rows=120 width=32) (actual time=0.009..0.011 rows=0 loops=1)"
+"        Buckets: 1024  Batches: 1  Memory Usage: 8kB"
+"        ->  Seq Scan on salesorderheader soh  (cost=0.00..11.20 rows=120 width=32) (actual time=0.009..0.009 rows=0 loops=1)"
+"Planning Time: 1.829 ms"
+"Execution Time: 0.163 ms"
+
+----------------------------------------------------------------------------------------------------------------------------------------------------
+
+Przed dodaniem indeksów analiza zapytania :
+
+SELECT 
+c.customerid, 
+c.personid,
+c.storeid,
+c.territoryid,
+soh.salesorderid, 
+soh.orderdate, 
+soh.duedate, 
+soh.shipdate
+FROM sales.customer c
+INNER JOIN sales.salesorderheader soh ON c.customerid = soh.customerid
+WHERE c.territoryid = 5
+
+przedstawiała się następująco:
+
+czas planowania wynosił 0.138 ms
+wykonania 0.056 ms. 
+
+Po dodaniu trzech indeksów:
+
+CREATE INDEX idx_customerid ON sales.customer (customerid);
+CREATE INDEX idx_territoryid ON sales.customer (territoryid);
+CREATE INDEX idx_orderdate ON sales.salesorderheader (orderdate)
+
+czas planowania wynosił 1.829 ms
+wykonania 0.163ms. 
+
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Czas wykonania wzrósł prawie 3 razy za to czas planowania wzrósł ponad trzynastokrotnie.
+Można zauważyć, że po dodaniu indeksów zminił się sposób skanowania tabeli customer: ze skanowania sekwencyjnego na skanowanie przez kopcpwanie (Bitmap Heap Scan) połączone ze skanowaniem Bitmap Index Scan na tabeli terrytoryid.
+Możliwe, że tworzenie i wykorzystywanie bitmap może powodować wzrost kosztów operacyjnych.
+
+Koszty zapytania są następujące:
+cost=12.70..427.12 - przed
+cost=18.35..194.31 - po
+
+Wydaje się zatem, że operacja jest teraz bardziej wydajna pod wzlędem kosztów zapytania.
+
+
